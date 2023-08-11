@@ -13,6 +13,7 @@ TARGET_RATE = 0.2
 MAX_RATES = {15: 0.4, 1_000_000_000: 0.6}
 
 MAX_PRICE_FOR_FIXED_INCOME = 30
+MIN_PRICE_FOR_PROFIT_SHARE = 20
 
 PROJECT_MANAGEMENT_FEE = 0.5
 
@@ -39,14 +40,16 @@ def main():
     fixed, ps = st.tabs(["Фиксированная доходность", "Разделение прибыли"])
 
     if purchase_price > MAX_PRICE_FOR_FIXED_INCOME:
-        with fixed:
-            st.warning("Для проектов такого размера доступно только разделение прибыли")
+        fixed.warning("Для проектов такого размера доступно только разделение прибыли")
     else:
         with fixed:
             fixed_income(own, loan, purchase_price, duration)
 
-    with ps:
-        profit_share(own, loan, purchase_price, duration)
+    if purchase_price < MIN_PRICE_FOR_PROFIT_SHARE:
+        ps.warning("Для проектов такого размера доступна только фиксированная доходность")
+    else:
+        with ps:
+            profit_share(own, loan, purchase_price, duration)
 
 
 def basic_inputs():
