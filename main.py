@@ -86,6 +86,7 @@ def basic_inputs():
     col1.metric(
         "Первоначальный взнос",
         f"{100 * downpayment:.0f}%",
+        help="Собственные средства / Стоимость квартиры",
     )
 
     col2.metric(
@@ -126,11 +127,16 @@ def fixed_income(own, loan, purchase_price, duration):
     st.metric(
         f"Ставка на вложенные средства ({own:.1f} млн. руб.)",
         f"{own_income_rate * 100:.0f}% годовых",
+        help="Зависит от размера первоначального платежа и стоимости квартиры",
     )
 
     own_income = own_income_rate * duration / 12 * own
 
-    st.metric("Доход за проект", f"{1_000_000 * round(own_income, 2):,.0f} руб.")
+    st.metric(
+        "Доход за проект",
+        f"{1_000_000 * round(own_income, 2):,.0f} руб.",
+        help="Собственные средства * Ставка доходнсти * Срок проекта",
+    )
 
 
 def profit_share(own, loan, purchase_price, duration):
@@ -153,16 +159,24 @@ def profit_share(own, loan, purchase_price, duration):
 
     col1, col2, col3 = st.columns(3)
 
-    col1.metric("Ваша инвестиция, млн. руб.", round(purchase_price, 2))
-    col2.metric("Наша инвестиция, млн. руб.", round(repairs, 2))
+    col1.metric(
+        "Ваша инвестиция, млн. руб.",
+        round(purchase_price, 2),
+        help="Стоимость квартиры",
+    )
+    col2.metric(
+        "Наша инвестиция, млн. руб.", round(repairs, 2), help="Стоимость ремонта"
+    )
 
     profit_share = purchase_price / total * (1 - PROJECT_MANAGEMENT_FEE)
 
     col3.metric(
         "Ваша доля от прибыли проекта",
         f"{100 * profit_share:.0f}%",
-        help="Исходя из того, что 50% прибыли составляет вознаграждение за ведение проекта, "
-        "а оставшая часть делится пропорционально сделанным вложениям инвестора и соинвестора",
+        help=f"Исходя из того, что {100*PROJECT_MANAGEMENT_FEE:.0f}% прибыли "
+        "составляет вознаграждение за ведение проекта, "
+        "а оставшая часть делится пропорционально "
+        "сделанным вложениям инвестора и соинвестора",
     )
 
     sale_price = st.slider(
@@ -195,7 +209,7 @@ def profit_share(own, loan, purchase_price, duration):
     # round(float(x), 2) for x in calc_table["Сумма, млн. руб."]
     # ]
 
-    with st.expander("Посмотреть расчёт прибыли:"):
+    with st.expander("Посмотреть расчёт прибыли проекта"):
         st.table(calc_table)
 
     st.divider()
@@ -214,6 +228,7 @@ def profit_share(own, loan, purchase_price, duration):
     st.metric(
         f"Ставка на вложенные средства ({own:.1f} млн. руб.)",
         f"{own_income_rate * 100:.0f}% годовых",
+        help="Доход / Собственные средства / Срок проекта",
     )
 
 
