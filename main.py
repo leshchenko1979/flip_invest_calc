@@ -1,17 +1,22 @@
-import streamlit as st
+import bisect
+
 import pandas as pd
+import streamlit as st
 
 REPAIRS_SHARE = 0.2
 
 LOAN_RATE = 0.14
 TARGET_RATE = 0.2
-MAX_RATE = 0.6
+
+MAX_RATES = {15: 0.4, 1_000_000_000: 0.6}
 
 MAX_PRICE_FOR_FIXED_INCOME = 30
 
 
 def main():
-    st.set_page_config(page_title="Доходность инвестора во флиппинговых проектах с Алексеем Лещенко")
+    st.set_page_config(
+        page_title="Доходность инвестора во флиппинговых проектах с Алексеем Лещенко"
+    )
 
     st.title("Сколько вы заработаете")
     st.caption(
@@ -43,11 +48,11 @@ def main():
 def basic_inputs():
     col1, col2 = st.columns(2)
     own = col1.number_input(
-        "Вы вложите собственных средств, млн. руб.", value=1.0, min_value=1.0, step=0.1
+        "Вы вложите собственных средств, млн. руб.", value=1.0, min_value=1.0, max_value=100.0, step=0.1
     )
 
     loan = col2.number_input(
-        "Вы возьмёте ипотечный кредит, млн. руб.", value=10.0, min_value=10.0, step=0.1
+        "Вы возьмёте ипотечный кредит, млн. руб.", value=10.0, min_value=10.0, max_value=100.0, step=0.1
     )
 
     purchase_price = own + loan
@@ -83,8 +88,13 @@ def fixed_income(own, loan, purchase_price, duration):
     # Расчёт own_share_income через WolframAlfa:
     # https://www.wolframalpha.com/input?i=%28x+*+a+%2B+r+*+b%29+%2F+%28a+%2B+b%29+%3D+t+what+is+x%3F
 
+    thresholds = list(MAX_RATES.keys())
+    rates = list(MAX_RATES.values())
+    index = bisect.bisect(thresholds, int(purchase_price))
+    max_rate = rates[index]
+
     own_income_rate = min(
-        MAX_RATE, loan * (TARGET_RATE - LOAN_RATE) / own + TARGET_RATE
+        max_rate, loan * (TARGET_RATE - LOAN_RATE) / own + TARGET_RATE
     )
 
     assert (
