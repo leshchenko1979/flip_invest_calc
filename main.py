@@ -1,62 +1,87 @@
 import streamlit as st
 import pandas as pd
 
-st.set_page_config()
+REPAIRS_SHARE = 0.2
 
-st.header("Сколько вы заработаете")
-st.caption("Соинвестируя во флиппинговые проекты с Алексеем Лещенко")
+LOAN_RATE = 0.14
+TARGET_RATE = 0.2
+MAX_RATE = 0.6
 
-st.subheader("1. Введите суммы вложений")
-
-col1, col2 = st.columns(2)
-own = col1.number_input(
-    "Вы вложите собственных средств, млн. руб.", value=1.0, min_value=1.0, step=0.1
-)
-
-loan = col2.number_input(
-    "Вы возьмёте ипотечный кредит, млн. руб.", value=1.0, min_value=1.0, step=0.1
-)
-
-purchase_price = own + loan
-
-repairs = purchase_price / 5
-
-total = purchase_price + repairs
-
-col1, col2, col3 = st.columns(3)
-col1.metric("Cтоимость квартиры, млн. руб.", round(purchase_price, 2))
-col2.metric(
-    "Cтоимость ремонта, млн. руб.",
-    round(repairs, 2),
-)
-col3.metric("Итого инвестиций, млн. руб.", round(total, 2))
+MAX_PRICE_FOR_FIXED_INCOME = 30
 
 
-duration = st.slider("Срок проекта, мес.", value=6, min_value=3, max_value=12)
+def main():
+    st.set_page_config()
 
-st.subheader("2. Выберите способ получения доходности:")
-
-fixed, ps = st.tabs(["Фиксированная доходность", "Разделение прибыли"])
-
-with fixed:
-    st.info(
-        "Фиксированная процентная ставка, не зависящая от прибыли проекта. Ипотечные платежи оплачиваются за наш счёт."
+    st.header("Сколько вы заработаете")
+    st.caption(
+        "Соинвестируя во [флиппинговые проекты с Алексеем Лещенко]"
+        "(https://flipio.ru/invest.html)"
     )
 
-    # st.warning("Ипотечные платежи оплачиваются за ВАШ счёт!")
+    st.subheader("1. Введите суммы вложений")
 
-    own_share = own / purchase_price
+    own, loan, purchase_price, repairs, duration = basic_inputs()
 
-    # Рассчёт own_share_income через WolframAlfa:
+    st.subheader("2. Выберите способ получения доходности:")
+
+    fixed, ps = st.tabs(["Фиксированная доходность", "Разделение прибыли"])
+
+    if purchase_price > MAX_PRICE_FOR_FIXED_INCOME:
+        with fixed:
+            st.warning("Для проектов такого размера доступно только разделение прибыли")
+    else:
+        with fixed:
+            fixed_income(own, loan, purchase_price, duration, fixed)
+
+    with ps:
+        profit_share(own, loan, purchase_price, repairs, duration)
+
+
+def basic_inputs():
+    col1, col2 = st.columns(2)
+    own = col1.number_input(
+        "Вы вложите собственных средств, млн. руб.", value=1.0, min_value=1.0, step=0.1
+    )
+
+    loan = col2.number_input(
+        "Вы возьмёте ипотечный кредит, млн. руб.", value=1.0, min_value=1.0, step=0.1
+    )
+
+    purchase_price = own + loan
+
+    repairs = purchase_price * REPAIRS_SHARE
+
+    total = purchase_price + repairs
+
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Cтоимость квартиры, млн. руб.", round(purchase_price, 2))
+    col2.metric(
+        "Cтоимость ремонта, млн. руб.",
+        round(repairs, 2),
+    )
+    col3.metric("Итого инвестиций, млн. руб.", round(total, 2))
+
+    duration = st.slider("Срок проекта, мес.", value=6, min_value=3, max_value=12)
+
+    return own, loan, purchase_price, repairs, duration
+
+
+def fixed_income(own, loan, purchase_price, duration, fixed):
+    st.info(
+        "Фиксированная процентная ставка, не зависящая от прибыли проекта. "
+        "Ипотечные платежи оплачиваются за наш счёт."
+    )
+
+    # Расчёт own_share_income через WolframAlfa:
     # https://www.wolframalpha.com/input?i=%28x+*+a+%2B+r+*+b%29+%2F+%28a+%2B+b%29+%3D+t+what+is+x%3F
 
-    TARGET_RATE = 0.2
-    LOAN_RATE = 0.14
-
-    own_income_rate = loan * (TARGET_RATE - LOAN_RATE) / own + TARGET_RATE
+    own_income_rate = min(
+        MAX_RATE, loan * (TARGET_RATE - LOAN_RATE) / own + TARGET_RATE
+    )
 
     assert (
-        TARGET_RATE / (own * own_income_rate + loan * LOAN_RATE) / purchase_price < 0.01
+        TARGET_RATE > (own * own_income_rate + loan * LOAN_RATE) / purchase_price - 0.01
     )
 
     st.subheader("3. Результат:")
@@ -70,7 +95,8 @@ with fixed:
 
     st.metric("Ваш доход за проект, млн. руб.", round(own_income, 2))
 
-with ps:
+
+def profit_share(own, loan, purchase_price, repairs, duration):
     st.info(
         "Вы получаете долю от прибыли проекта. "
         "Ипотечные платежи оплачиваются вами, но включаются в расходы проекта."
@@ -85,7 +111,7 @@ with ps:
 
     sale_price = st.slider(
         "Стоимость продажи квартиры, млн. руб.",
-        min_value=round(purchase_price+repairs),
+        min_value=round(purchase_price + repairs),
         max_value=round(purchase_price * 2),
         value=round(purchase_price * 1.5),
         step=1,
@@ -109,7 +135,9 @@ with ps:
         columns=["Параметр", "Сумма, млн. руб."],
     ).set_index("Параметр")
 
-    calc_table["Сумма, млн. руб."] = [round(float(x), 2) for x in calc_table["Сумма, млн. руб."]]
+    # calc_table["Сумма, млн. руб."] = [
+    # round(float(x), 2) for x in calc_table["Сумма, млн. руб."]
+    # ]
 
     st.caption("Расчет прибыли:")
     st.table(calc_table)
@@ -125,3 +153,6 @@ with ps:
         f"Ваша ставка доходности на вложенные средства ({own:.1f} млн. руб.)",
         f"{own_income_rate * 100:.0f}%",
     )
+
+
+main()
