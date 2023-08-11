@@ -124,13 +124,13 @@ def fixed_income(own, loan, purchase_price, duration):
     st.header("3. Ваша доходность:")
 
     st.metric(
-        f"Ваша ставка доходности на вложенные средства ({own:.1f} млн. руб.)",
-        f"{own_income_rate * 100:.0f}%",
+        f"Ставка на вложенные средства ({own:.1f} млн. руб.)",
+        f"{own_income_rate * 100:.0f}% годовых",
     )
 
     own_income = own_income_rate * duration / 12 * own
 
-    st.metric("Ваш доход за проект, млн. руб.", round(own_income, 2))
+    st.metric("Доход за проект", f"{1_000_000 * round(own_income, 2):,.0f} руб.")
 
 
 def profit_share(own, loan, purchase_price, duration):
@@ -204,16 +204,16 @@ def profit_share(own, loan, purchase_price, duration):
 
     own_income = profit * profit_share
     st.metric(
-        "Ваш доход за проект, млн. руб.",
-        round(own_income, 2),
+        "Доход за проект",
+        f"{1_000_000 * round(own_income, 2):,.0f} руб.",
         help="Прибыль проекта, умноженная на вашу долю",
     )
 
     own_income_rate = own_income / own / duration * 12
 
     st.metric(
-        f"Ваша ставка доходности на вложенные средства ({own:.1f} млн. руб.)",
-        f"{own_income_rate * 100:.0f}%",
+        f"Ставка на вложенные средства ({own:.1f} млн. руб.)",
+        f"{own_income_rate * 100:.0f}% годовых",
     )
 
 
