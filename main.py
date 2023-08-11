@@ -23,6 +23,8 @@ def main():
 
     own, loan, purchase_price, repairs, duration = basic_inputs()
 
+    st.divider()
+
     st.subheader("2. Выберите способ получения доходности:")
 
     fixed, ps = st.tabs(["Фиксированная доходность", "Разделение прибыли"])
@@ -89,6 +91,8 @@ def fixed_income(own, loan, purchase_price, duration):
         TARGET_RATE > (own * own_income_rate + loan * LOAN_RATE) / purchase_price - 0.01
     )
 
+    st.divider()
+
     st.subheader("3. Результат:")
 
     st.metric(
@@ -148,6 +152,8 @@ def profit_share(own, loan, purchase_price, repairs, duration):
 
     st.caption("Расчет прибыли:")
     st.table(calc_table)
+
+    st.divider()
 
     st.subheader("3. Результат:")
 
