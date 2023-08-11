@@ -11,7 +11,7 @@ MAX_PRICE_FOR_FIXED_INCOME = 30
 
 
 def main():
-    st.set_page_config()
+    st.set_page_config(page_title="Доходность инвестора во флиппинговых проектах с Алексеем Лещенко")
 
     st.header("Сколько вы заработаете")
     st.caption(
