@@ -14,6 +14,8 @@ MAX_RATES = {15: 0.4, 1_000_000_000: 0.6}
 
 MAX_PRICE_FOR_FIXED_INCOME = 30
 
+PROJECT_MANAGEMENT_FEE = 0.5
+
 
 def main():
     st.set_page_config(
@@ -28,7 +30,7 @@ def main():
 
     st.header("1. Введите суммы вложений")
 
-    own, loan, purchase_price, repairs, duration = basic_inputs()
+    own, loan, purchase_price, duration = basic_inputs()
 
     st.divider()
 
@@ -44,17 +46,25 @@ def main():
             fixed_income(own, loan, purchase_price, duration)
 
     with ps:
-        profit_share(own, loan, purchase_price, repairs, duration)
+        profit_share(own, loan, purchase_price, duration)
 
 
 def basic_inputs():
     col1, col2 = st.columns(2)
     own = col1.number_input(
-        "Вы вложите собственных средств, млн. руб.", value=2.0, min_value=1.0, max_value=100.0, step=0.1
+        "Вы вложите собственных средств, млн. руб.",
+        value=2.0,
+        min_value=1.0,
+        max_value=100.0,
+        step=0.1,
     )
 
     loan = col2.number_input(
-        "Вы возьмёте ипотечный кредит, млн. руб.", value=10.0, min_value=10.0, max_value=100.0, step=0.1
+        "Вы возьмёте ипотечный кредит, млн. руб.",
+        value=10.0,
+        min_value=10.0,
+        max_value=100.0,
+        step=0.1,
     )
 
     purchase_price = own + loan
@@ -63,26 +73,15 @@ def basic_inputs():
         st.error("Доля первоначального взноса слишком мала.")
         st.stop()
 
-    repairs = purchase_price * REPAIRS_SHARE
-
-    total = purchase_price + repairs
-
-    col1, col2, col3 = st.columns(3)
-    col1.metric(
+    st.metric(
         "Cтоимость квартиры, млн. руб.",
         round(purchase_price, 2),
         help="Собственные средства + полученный ипотечный кредит",
     )
-    col2.metric(
-        "Cтоимость ремонта, млн. руб.",
-        round(repairs, 2),
-        help=f"Ориенировочно {REPAIRS_SHARE * 100:.0f}% от стоимости квартиры",
-    )
-    col3.metric("Итого инвестиций, млн. руб.", round(total, 2))
 
     duration = st.slider("Срок проекта, мес.", value=6, min_value=3, max_value=12)
 
-    return own, loan, purchase_price, repairs, duration
+    return own, loan, purchase_price, duration
 
 
 def fixed_income(own, loan, purchase_price, duration):
@@ -121,15 +120,32 @@ def fixed_income(own, loan, purchase_price, duration):
     st.metric("Ваш доход за проект, млн. руб.", round(own_income, 2))
 
 
-def profit_share(own, loan, purchase_price, repairs, duration):
+def profit_share(own, loan, purchase_price, duration):
     st.info(
         "Вы получаете долю от прибыли проекта. "
         "Ипотечные платежи оплачиваются вами, но включаются в расходы проекта."
     )
 
-    profit_share = purchase_price / (purchase_price + repairs) * 0.5
+    repairs_approx = purchase_price * REPAIRS_SHARE
 
-    st.metric(
+    repairs = st.slider(
+        "Cтоимость ремонта, млн. руб.",
+        value=repairs_approx,
+        min_value=round(repairs_approx * 0.8, 1),
+        max_value=round(repairs_approx * 1.2, 1),
+        step=0.1,
+    )
+
+    total = purchase_price + repairs
+
+    col1, col2, col3 = st.columns(3)
+
+    col1.metric("Ваша инвестиция, млн. руб.", round(purchase_price, 2))
+    col2.metric("Наша инвестиция, млн. руб.", round(repairs, 2))
+
+    profit_share = purchase_price / total * (1 - PROJECT_MANAGEMENT_FEE)
+
+    col3.metric(
         "Ваша доля от прибыли проекта",
         f"{100 * profit_share:.0f}%",
         help="Исходя из того, что 50% прибыли составляет вознаграждение за ведение проекта, "
