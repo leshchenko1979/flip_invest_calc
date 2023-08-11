@@ -3,6 +3,8 @@ import bisect
 import pandas as pd
 import streamlit as st
 
+MIN_DOWNPAYMENT = 0.1
+
 REPAIRS_SHARE = 0.2
 
 LOAN_RATE = 0.14
@@ -48,7 +50,7 @@ def main():
 def basic_inputs():
     col1, col2 = st.columns(2)
     own = col1.number_input(
-        "Вы вложите собственных средств, млн. руб.", value=1.0, min_value=1.0, max_value=100.0, step=0.1
+        "Вы вложите собственных средств, млн. руб.", value=2.0, min_value=1.0, max_value=100.0, step=0.1
     )
 
     loan = col2.number_input(
@@ -56,6 +58,10 @@ def basic_inputs():
     )
 
     purchase_price = own + loan
+
+    if own / purchase_price < MIN_DOWNPAYMENT:
+        st.error("Доля первоначального взноса слишком мала.")
+        st.stop()
 
     repairs = purchase_price * REPAIRS_SHARE
 
