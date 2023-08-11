@@ -29,7 +29,7 @@ def main():
         "(https://flipio.ru/invest.html)"
     )
 
-    st.header("1. Введите суммы вложений")
+    st.header("1. Введите суммы вложений и срок проекта")
 
     own, loan, purchase_price, duration = basic_inputs()
 
@@ -46,7 +46,9 @@ def main():
             fixed_income(own, loan, purchase_price, duration)
 
     if purchase_price < MIN_PRICE_FOR_PROFIT_SHARE:
-        ps.warning("Для проектов такого размера доступна только фиксированная доходность")
+        ps.warning(
+            "Для проектов такого размера доступна только фиксированная доходность"
+        )
     else:
         with ps:
             profit_share(own, loan, purchase_price, duration)
@@ -71,12 +73,20 @@ def basic_inputs():
     )
 
     purchase_price = own + loan
+    downpayment = own / purchase_price
 
-    if own / purchase_price < MIN_DOWNPAYMENT:
+    if downpayment < MIN_DOWNPAYMENT:
         st.error("Доля первоначального взноса слишком мала.")
         st.stop()
 
-    st.metric(
+    col1, col2 = st.columns(2)
+
+    col1.metric(
+        "Первоначальный взнос",
+        f"{100 * downpayment:.0f}%",
+    )
+
+    col2.metric(
         "Cтоимость квартиры, млн. руб.",
         round(purchase_price, 2),
         help="Собственные средства + полученный ипотечный кредит",
@@ -111,7 +121,7 @@ def fixed_income(own, loan, purchase_price, duration):
 
     st.divider()
 
-    st.header("3. Результат:")
+    st.header("3. Ваша доходность:")
 
     st.metric(
         f"Ваша ставка доходности на вложенные средства ({own:.1f} млн. руб.)",
@@ -190,7 +200,7 @@ def profit_share(own, loan, purchase_price, duration):
 
     st.divider()
 
-    st.header("3. Результат:")
+    st.header("3. Ваша доходность:")
 
     own_income = profit * profit_share
     st.metric(
