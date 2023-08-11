@@ -11,6 +11,8 @@ LOAN_RATE = 0.14
 TARGET_RATE = 0.2
 
 MAX_RATES = {15: 0.4, 1_000_000_000: 0.6}
+THRESHOLDS = list(MAX_RATES.keys())
+RATES = list(MAX_RATES.values())
 
 MAX_PRICE_FOR_FIXED_INCOME = 30
 MIN_PRICE_FOR_PROFIT_SHARE = 20
@@ -106,18 +108,16 @@ def fixed_income(own, loan, purchase_price, duration):
     # Расчёт own_share_income через WolframAlfa:
     # https://www.wolframalpha.com/input?i=%28x+*+a+%2B+r+*+b%29+%2F+%28a+%2B+b%29+%3D+t+what+is+x%3F
 
-    thresholds = list(MAX_RATES.keys())
-    rates = list(MAX_RATES.values())
-    index = bisect.bisect(thresholds, int(purchase_price))
-    max_rate = rates[index]
+    index = bisect.bisect(THRESHOLDS, int(purchase_price))
+    max_rate = RATES[index]
 
     own_income_rate = min(
         max_rate, loan * (TARGET_RATE - LOAN_RATE) / own + TARGET_RATE
     )
 
-    assert (
-        TARGET_RATE > (own * own_income_rate + loan * LOAN_RATE) / purchase_price - 0.01
-    )
+    total_rate = (own * own_income_rate + loan * LOAN_RATE) / purchase_price
+
+    assert TARGET_RATE > total_rate - 0.01
 
     st.divider()
 
