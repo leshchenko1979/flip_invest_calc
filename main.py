@@ -195,8 +195,8 @@ def profit_share(own, loan, purchase_price, duration):
     # round(float(x), 2) for x in calc_table["Сумма, млн. руб."]
     # ]
 
-    st.caption("Расчет прибыли:")
-    st.table(calc_table)
+    with st.expander("Посмотреть расчёт прибыли:"):
+        st.table(calc_table)
 
     st.divider()
 
