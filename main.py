@@ -13,19 +13,19 @@ MAX_PRICE_FOR_FIXED_INCOME = 30
 def main():
     st.set_page_config(page_title="Доходность инвестора во флиппинговых проектах с Алексеем Лещенко")
 
-    st.header("Сколько вы заработаете")
+    st.title("Сколько вы заработаете")
     st.caption(
         "Соинвестируя во [флиппинговые проекты с Алексеем Лещенко]"
         "(https://flipio.ru/invest.html)"
     )
 
-    st.subheader("1. Введите суммы вложений")
+    st.header("1. Введите суммы вложений")
 
     own, loan, purchase_price, repairs, duration = basic_inputs()
 
     st.divider()
 
-    st.subheader("2. Выберите способ получения доходности:")
+    st.header("2. Выберите способ получения доходности:")
 
     fixed, ps = st.tabs(["Фиксированная доходность", "Разделение прибыли"])
 
@@ -93,7 +93,7 @@ def fixed_income(own, loan, purchase_price, duration):
 
     st.divider()
 
-    st.subheader("3. Результат:")
+    st.header("3. Результат:")
 
     st.metric(
         f"Ваша ставка доходности на вложенные средства ({own:.1f} млн. руб.)",
@@ -155,7 +155,7 @@ def profit_share(own, loan, purchase_price, repairs, duration):
 
     st.divider()
 
-    st.subheader("3. Результат:")
+    st.header("3. Результат:")
 
     own_income = profit * profit_share
     st.metric(
