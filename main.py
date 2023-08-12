@@ -55,6 +55,9 @@ def main():
         with ps:
             profit_share(own, loan, purchase_price, duration)
 
+    st.divider()
+    st.subheader("Заинтересовались? [Напишите нам](https://t.me/flipioinvest)!")
+
 
 def basic_inputs():
     col1, col2 = st.columns(2)
