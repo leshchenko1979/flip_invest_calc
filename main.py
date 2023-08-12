@@ -105,11 +105,12 @@ def basic_inputs():
 
 def fixed_income(own, loan, purchase_price, duration):
     st.info(
-        "Фиксированная процентная ставка, не зависящая от прибыли проекта. "
-        "Ипотечные платежи оплачиваются за наш счёт."
+        "- Фиксированная процентная ставка, не зависящая от прибыли проекта.\n"
+        "- Ипотечные платежи оплачиваются за наш счёт.\n"
+        "- Ремонт оплачивается нами."
     )
 
-    # Расчёт own_share_income через WolframAlfa:
+    # Расчёт own_income_rate через WolframAlfa:
     # https://www.wolframalpha.com/input?i=%28x+*+a+%2B+r+*+b%29+%2F+%28a+%2B+b%29+%3D+t+what+is+x%3F
 
     index = bisect.bisect(THRESHOLDS, int(purchase_price))
@@ -144,8 +145,9 @@ def fixed_income(own, loan, purchase_price, duration):
 
 def profit_share(own, loan, purchase_price, duration):
     st.info(
-        "Вы получаете долю от прибыли проекта. "
-        "Ипотечные платежи оплачиваются вами, но включаются в расходы проекта."
+        "- Вы получаете долю от прибыли проекта. \n"
+        "- Ипотечные платежи оплачиваются вами, но включаются в расходы проекта.\n"
+        "- Ремонт оплачивается нами и включается в расходы проекта."
     )
 
     repairs_approx = purchase_price * REPAIRS_SHARE
