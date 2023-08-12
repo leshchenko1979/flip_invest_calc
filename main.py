@@ -69,7 +69,7 @@ def basic_inputs():
     loan = col2.number_input(
         "Вы возьмёте ипотечный кредит, млн. руб.",
         value=10.0,
-        min_value=10.0,
+        min_value=0.0,
         max_value=100.0,
         step=0.1,
     )
@@ -85,7 +85,7 @@ def basic_inputs():
 
     col1.metric(
         "Первоначальный взнос",
-        f"{100 * downpayment:.0f}%",
+        f"{100 * downpayment:.0f}%" if loan > 0 else "Без ипотеки",
         help="Собственные средства / Стоимость квартиры",
     )
 
