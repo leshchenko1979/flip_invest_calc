@@ -17,7 +17,7 @@ RATES = list(MAX_RATES.values())
 MAX_PRICE_FOR_FIXED_INCOME = 30
 MIN_PRICE_FOR_PROFIT_SHARE = 20
 
-PROJECT_MANAGEMENT_FEE = 0.5
+PROJECT_MANAGEMENT_FEE = 0.6
 
 
 def main():
@@ -148,38 +148,13 @@ def profit_share(own, loan, purchase_price, duration):
         "Ипотечные платежи оплачиваются вами, но включаются в расходы проекта."
     )
 
-    repairs_approx = purchase_price * REPAIRS_SHARE
+    repairs = purchase_price * REPAIRS_SHARE
 
-    repairs = st.slider(
-        "Cтоимость ремонта, млн. руб.",
-        value=repairs_approx,
-        min_value=round(repairs_approx * 0.8, 1),
-        max_value=round(repairs_approx * 1.2, 1),
-        step=0.1,
-    )
+    profit_share = 1 - PROJECT_MANAGEMENT_FEE
 
-    total = purchase_price + repairs
-
-    col1, col2, col3 = st.columns(3)
-
-    col1.metric(
-        "Ваша инвестиция, млн. руб.",
-        round(purchase_price, 2),
-        help="Стоимость квартиры",
-    )
-    col2.metric(
-        "Наша инвестиция, млн. руб.", round(repairs, 2), help="Стоимость ремонта"
-    )
-
-    profit_share = purchase_price / total * (1 - PROJECT_MANAGEMENT_FEE)
-
-    col3.metric(
+    st.metric(
         "Ваша доля от прибыли проекта",
         f"{100 * profit_share:.0f}%",
-        help=f"Исходя из того, что {100*PROJECT_MANAGEMENT_FEE:.0f}% прибыли "
-        "составляет вознаграждение за ведение проекта, "
-        "а оставшая часть делится пропорционально "
-        "сделанным вложениям инвестора и соинвестора",
     )
 
     sale_price = st.slider(
