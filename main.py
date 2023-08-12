@@ -98,7 +98,7 @@ def basic_inputs():
         help="Собственные средства + полученный ипотечный кредит",
     )
 
-    duration = st.slider("Срок проекта, мес.", value=6, min_value=3, max_value=12)
+    duration = st.slider("Срок проекта, мес.", value=5, min_value=3, max_value=10)
 
     return own, loan, purchase_price, duration
 
