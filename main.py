@@ -10,11 +10,11 @@ REPAIRS_SHARE = 0.2
 LOAN_RATE = 0.14
 TARGET_RATE = 0.2
 
-MAX_RATES = {15: 0.4, 1_000_000_000: 0.6}
+MAX_RATES = {1_000_000_000: 0.4}
 THRESHOLDS = list(MAX_RATES.keys())
 RATES = list(MAX_RATES.values())
 
-MAX_PRICE_FOR_FIXED_INCOME = 30
+MAX_PRICE_FOR_FIXED_INCOME = 40
 MIN_PRICE_FOR_PROFIT_SHARE = 20
 
 PROJECT_MANAGEMENT_FEE = 0.6
@@ -98,7 +98,7 @@ def basic_inputs():
         help="Собственные средства + полученный ипотечный кредит",
     )
 
-    duration = st.slider("Срок проекта, мес.", value=5, min_value=3, max_value=10)
+    duration = st.slider("Срок проекта, мес.", value=5, min_value=3, max_value=8)
 
     return own, loan, purchase_price, duration
 
