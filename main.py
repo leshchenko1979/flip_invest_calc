@@ -42,14 +42,20 @@ def main():
     fixed, ps = st.tabs(["Фиксированная доходность", "Разделение прибыли"])
 
     if purchase_price > MAX_PRICE_FOR_FIXED_INCOME:
-        fixed.warning("Для проектов такого размера доступно только разделение прибыли")
+        fixed.warning(
+            "Фиксированная доходность недоступна для проектов, "
+            "где стоимость покупки квартиры "
+            f"более {MAX_PRICE_FOR_FIXED_INCOME} млн. руб."
+        )
     else:
         with fixed:
             fixed_income(own, loan, purchase_price, duration)
 
     if purchase_price < MIN_PRICE_FOR_PROFIT_SHARE:
         ps.warning(
-            "Для проектов такого размера доступна только фиксированная доходность"
+            "Раздел прибыли недоступен для проектов, "
+            "где стоимость покупки квартиры "
+            f"менее {MIN_PRICE_FOR_PROFIT_SHARE} млн. руб."
         )
     else:
         with ps:
@@ -81,7 +87,10 @@ def basic_inputs():
     downpayment = own / purchase_price
 
     if downpayment < MIN_DOWNPAYMENT:
-        st.error("Доля первоначального взноса слишком мала.")
+        st.error(
+            "Доля первоначального взноса дожна быть больше "
+            f"{100 * MIN_DOWNPAYMENT:.0f}% (сейчас {100 * downpayment:.1f}%)."
+        )
         st.stop()
 
     col1, col2 = st.columns(2)
@@ -104,10 +113,11 @@ def basic_inputs():
 
 
 def fixed_income(own, loan, purchase_price, duration):
-    st.info(
-        "- Фиксированная процентная ставка, не зависящая от прибыли проекта.\n"
-        "- Ипотечные платежи оплачиваются за наш счёт.\n"
-        "- Ремонт оплачивается нами."
+    st.info("""
+        - Фиксированная процентная ставка, не зависящая от прибыли проекта.
+        - Ипотечные платежи оплачиваются за наш счёт и перечисляются вам нами за 3 дней до каждого платежа.
+        - Ремонт оплачивается нами за наш счёт.
+        - Расходы на налоги выдаются вам при окончательном расчёте."""
     )
 
     # Расчёт own_income_rate через WolframAlfa:
@@ -144,10 +154,11 @@ def fixed_income(own, loan, purchase_price, duration):
 
 
 def profit_share(own, loan, purchase_price, duration):
-    st.info(
-        "- Вы получаете долю от прибыли проекта. \n"
-        "- Ипотечные платежи оплачиваются вами за ваш счёт.\n"
-        "- Ремонт оплачивается нами и включается в расходы проекта."
+    st.info("""
+        - Вы получаете долю от прибыли проекта.
+        - Ипотечные платежи оплачиваются вами за ваш счёт.
+        - Ремонт оплачивается нами и включается в расходы проекта.
+        - Расходы на налоги выдаются вам при окончательном расчёте."""
     )
 
     repairs = purchase_price * REPAIRS_SHARE
@@ -171,6 +182,20 @@ def profit_share(own, loan, purchase_price, duration):
 
     profit = sale_price - purchase_price - repairs - taxes
 
+    st.divider()
+
+    st.header("3. Ваша доходность:")
+
+    interest = LOAN_RATE * loan * duration / 12
+
+    own_income = profit * profit_share - interest
+
+    st.metric(
+        "Чистый доход за проект за вычетом процентов",
+        f"{1_000_000 * round(own_income, 2):,.0f} руб.",
+        help="Прибыль проекта, умноженная на вашу долю, за вычетом процентов по кредиту",
+    )
+
     calc_table = pd.DataFrame(
         [
             ("Покупка", purchase_price),
@@ -182,26 +207,21 @@ def profit_share(own, loan, purchase_price, duration):
         columns=["Параметр", "Сумма, млн. руб."],
     ).set_index("Параметр")
 
-    # calc_table["Сумма, млн. руб."] = [
-    # round(float(x), 2) for x in calc_table["Сумма, млн. руб."]
-    # ]
-
     with st.expander("Посмотреть расчёт прибыли проекта"):
         st.table(calc_table)
 
-    st.divider()
+    calc_table = pd.DataFrame(
+        [
+            ("Прибыль проекта", profit),
+            ("Ваша доля от прибыли проекта", profit * profit_share),
+            ("Проценты по кредиту", interest),
+            ("Чистый доход", own_income),
+        ],
+        columns=["Параметр", "Сумма, млн. руб."],
+    ).set_index("Параметр")
 
-    st.header("3. Ваша доходность:")
-
-    interest = LOAN_RATE * loan * duration / 12
-
-    own_income = profit * profit_share - interest
-
-    st.metric(
-        "Доход за проект за вычетом процентов",
-        f"{1_000_000 * round(own_income, 2):,.0f} руб.",
-        help="Прибыль проекта, умноженная на вашу долю, за вычетом процентов по кредиту",
-    )
+    with st.expander("Посмотреть расчёт вашего чистого дохода"):
+        st.table(calc_table)
 
     own_income_rate = own_income / own / duration * 12
 
