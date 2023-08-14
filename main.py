@@ -146,7 +146,7 @@ def fixed_income(own, loan, purchase_price, duration):
 def profit_share(own, loan, purchase_price, duration):
     st.info(
         "- Вы получаете долю от прибыли проекта. \n"
-        "- Ипотечные платежи оплачиваются вами, но включаются в расходы проекта.\n"
+        "- Ипотечные платежи оплачиваются вами за ваш счёт.\n"
         "- Ремонт оплачивается нами и включается в расходы проекта."
     )
 
@@ -169,15 +169,12 @@ def profit_share(own, loan, purchase_price, duration):
 
     taxes = (sale_price - purchase_price) * 0.13
 
-    interest = LOAN_RATE * loan * duration / 12
-
-    profit = sale_price - purchase_price - repairs - taxes - interest
+    profit = sale_price - purchase_price - repairs - taxes
 
     calc_table = pd.DataFrame(
         [
             ("Покупка", purchase_price),
             ("Ремонт", repairs),
-            ("Проценты по кредиту", interest),
             ("Налоги (13%)", taxes),
             ("Продажа", sale_price),
             ("Прибыль", profit),
@@ -196,11 +193,14 @@ def profit_share(own, loan, purchase_price, duration):
 
     st.header("3. Ваша доходность:")
 
-    own_income = profit * profit_share
+    interest = LOAN_RATE * loan * duration / 12
+
+    own_income = profit * profit_share - interest
+
     st.metric(
-        "Доход за проект",
+        "Доход за проект за вычетом процентов",
         f"{1_000_000 * round(own_income, 2):,.0f} руб.",
-        help="Прибыль проекта, умноженная на вашу долю",
+        help="Прибыль проекта, умноженная на вашу долю, за вычетом процентов по кредиту",
     )
 
     own_income_rate = own_income / own / duration * 12
