@@ -86,13 +86,6 @@ def basic_inputs():
     purchase_price = own + loan
     downpayment = own / purchase_price
 
-    if downpayment < MIN_DOWNPAYMENT:
-        st.error(
-            "Доля первоначального взноса дожна быть больше "
-            f"{100 * MIN_DOWNPAYMENT:.0f}% (сейчас {100 * downpayment:.1f}%)."
-        )
-        st.stop()
-
     col1, col2 = st.columns(2)
 
     col1.metric(
@@ -107,6 +100,13 @@ def basic_inputs():
         help="Собственные средства + полученный ипотечный кредит",
     )
 
+    if downpayment < MIN_DOWNPAYMENT:
+        st.error(
+            "Доля первоначального взноса дожна быть больше "
+            f"{100 * MIN_DOWNPAYMENT:.0f}% (сейчас {100 * downpayment:.1f}%)."
+        )
+        st.stop()
+
     duration = st.slider("Срок проекта, мес.", value=5, min_value=3, max_value=8)
 
     return own, loan, purchase_price, duration
@@ -115,7 +115,7 @@ def basic_inputs():
 def fixed_income(own, loan, purchase_price, duration):
     st.info("""
         - Фиксированная процентная ставка, не зависящая от прибыли проекта.
-        - Ипотечные платежи оплачиваются за наш счёт и перечисляются вам нами за 3 дней до каждого платежа.
+        - Ипотечные платежи оплачиваются за наш счёт.
         - Ремонт оплачивается нами за наш счёт.
         - Расходы на налоги выдаются вам при окончательном расчёте."""
     )
@@ -141,7 +141,7 @@ def fixed_income(own, loan, purchase_price, duration):
     st.metric(
         f"Ставка на вложенные средства ({own:.1f} млн. руб.)",
         f"{own_income_rate * 100:.0f}% годовых",
-        help="Зависит от размера первоначального платежа и стоимости квартиры",
+        help="Зависит от размера первоначального платежа",
     )
 
     own_income = own_income_rate * duration / 12 * own
@@ -149,7 +149,7 @@ def fixed_income(own, loan, purchase_price, duration):
     st.metric(
         "Доход за проект",
         f"{1_000_000 * round(own_income, 2):,.0f} руб.",
-        help="Собственные средства * Ставка доходнсти * Срок проекта",
+        help="Собственные средства * Ставка доходности * Срок проекта",
     )
 
 
