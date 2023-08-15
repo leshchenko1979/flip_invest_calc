@@ -62,7 +62,7 @@ def main():
             profit_share(own, loan, purchase_price, duration)
 
     st.divider()
-    st.subheader("Заинтересовались? [Напишите нам](https://t.me/flipioinvest)!")
+    st.subheader("Заинтересовались? [Напишите нам](https://t.me/flippinginvestbot)!")
 
 
 def basic_inputs():
