@@ -113,13 +113,34 @@ def basic_inputs():
 
 
 def fixed_income(own, loan, purchase_price, duration):
-    st.info("""
+    st.info(
+        """
         - Фиксированная процентная ставка, не зависящая от прибыли проекта.
         - Ипотечные платежи оплачиваются за наш счёт.
         - Ремонт оплачивается нами за наш счёт.
         - Расходы на налоги выдаются вам при окончательном расчёте."""
     )
 
+    own_income_rate, own_income = calc_fixed_income(purchase_price, loan, own, duration)
+
+    st.divider()
+
+    st.header("3. Ваша доходность:")
+
+    st.metric(
+        f"Ставка на вложенные средства ({own:.1f} млн. руб.)",
+        f"{own_income_rate * 100:.0f}% годовых",
+        help="Зависит от размера первоначального платежа",
+    )
+
+    st.metric(
+        "Доход за проект",
+        f"{1_000_000 * round(own_income, 2):,.0f} руб.",
+        help="Собственные средства * Ставка доходности * Срок проекта",
+    )
+
+
+def calc_fixed_income(purchase_price, loan, own, duration):
     # Расчёт own_income_rate через WolframAlfa:
     # https://www.wolframalpha.com/input?i=%28x+*+a+%2B+r+*+b%29+%2F+%28a+%2B+b%29+%3D+t+what+is+x%3F
 
@@ -134,27 +155,14 @@ def fixed_income(own, loan, purchase_price, duration):
 
     assert TARGET_RATE > total_rate - 0.01
 
-    st.divider()
-
-    st.header("3. Ваша доходность:")
-
-    st.metric(
-        f"Ставка на вложенные средства ({own:.1f} млн. руб.)",
-        f"{own_income_rate * 100:.0f}% годовых",
-        help="Зависит от размера первоначального платежа",
-    )
-
     own_income = own_income_rate * duration / 12 * own
 
-    st.metric(
-        "Доход за проект",
-        f"{1_000_000 * round(own_income, 2):,.0f} руб.",
-        help="Собственные средства * Ставка доходности * Срок проекта",
-    )
+    return own_income_rate, own_income
 
 
 def profit_share(own, loan, purchase_price, duration):
-    st.info("""
+    st.info(
+        """
         - Вы получаете долю от прибыли проекта.
         - Ипотечные платежи оплачиваются вами за ваш счёт.
         - Ремонт оплачивается нами и включается в расходы проекта.
