@@ -33,7 +33,7 @@ def main():
 
     st.header("1. Введите суммы вложений и срок проекта")
 
-    own, loan, purchase_price, duration = basic_inputs()
+    own, loan, purchase_price, duration, sale_price = basic_inputs()
 
     st.divider()
 
@@ -59,19 +59,26 @@ def main():
         )
     else:
         with ps:
-            profit_share(own, loan, purchase_price, duration)
+            sale_price = profit_share(own, loan, purchase_price, duration, sale_price)
 
     st.divider()
     st.subheader("Заинтересовались? [Напишите нам](https://t.me/flippinginvestbot)!")
+
+    st.experimental_set_query_params(
+        own=round(own, 1),
+        loan=round(loan, 1),
+        duration=duration,
+        sale_price=sale_price,
+    )
 
 
 def basic_inputs():
     # load own, loan, duration from URL only on the first run
     if "first_run" not in st.session_state:
-        own, loan, duration = get_from_URL()
+        own, loan, duration, sale_price = get_from_URL()
         st.session_state.first_run = True
     else:
-        own, loan, duration = 2.0, 10.0, 5
+        own, loan, duration, sale_price = 2.0, 10.0, 5, 15
 
     col1, col2 = st.columns(2)
     own = col1.number_input(
@@ -118,11 +125,7 @@ def basic_inputs():
         "Срок проекта, мес.", value=duration, min_value=3, max_value=12
     )
 
-    st.experimental_set_query_params(
-        own=round(own, 1), loan=round(loan, 1), duration=duration
-    )
-
-    return own, loan, purchase_price, duration
+    return own, loan, purchase_price, duration, sale_price
 
 
 def get_from_URL():
@@ -130,18 +133,19 @@ def get_from_URL():
     if the values in the URL are absent or incorrect or out of bounds"""
 
     try:
-        own, loan, duration = get_from_URL_params()
+        own, loan, duration, sale_price = get_from_URL_params()
 
         assert 1.0 <= own <= 100.0
         assert 0.0 <= loan <= 100.0
         assert 3 <= duration <= 12
+        assert 0 <= sale_price <= 100
 
     except (ValueError, AssertionError):
         if st.experimental_get_query_params():
             st.error("Некорректные значения в URL, использую значения по умолчанию")
-        own, loan, duration = 2.0, 10.0, 5
+        own, loan, duration = 2.0, 10.0, 5, 15
 
-    return own, loan, duration
+    return own, loan, duration, sale_price
 
 
 def get_from_URL_params():
@@ -150,8 +154,9 @@ def get_from_URL_params():
     own = float(params.get("own", [2.0])[0])
     loan = float(params.get("loan", [10.0])[0])
     duration = int(params.get("duration", [5])[0])
+    sale_price = float(params.get("sale_price", [15])[0])
 
-    return own, loan, duration
+    return own, loan, duration, sale_price
 
 
 def fixed_income(own, loan, purchase_price, duration):
@@ -202,7 +207,7 @@ def calc_fixed_income(purchase_price, loan, own, duration):
     return own_income_rate, own_income
 
 
-def profit_share(own, loan, purchase_price, duration):
+def profit_share(own, loan, purchase_price, duration, sale_price):
     st.info(
         """
         - Вы получаете долю от прибыли проекта.
@@ -223,8 +228,8 @@ def profit_share(own, loan, purchase_price, duration):
     sale_price = st.slider(
         "Стоимость продажи квартиры, млн. руб.",
         min_value=round(purchase_price + repairs),
-        max_value=round(purchase_price * 2),
-        value=round(purchase_price * 1.5),
+        max_value=round(purchase_price * 3),
+        value=sale_price,
         step=1,
     )
 
@@ -280,6 +285,8 @@ def profit_share(own, loan, purchase_price, duration):
         f"{own_income_rate * 100:.0f}% годовых",
         help="Доход / Собственные средства / Срок проекта",
     )
+
+    return sale_price
 
 
 main()
