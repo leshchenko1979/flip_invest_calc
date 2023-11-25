@@ -66,10 +66,17 @@ def main():
 
 
 def basic_inputs():
+    # load own, loan, duration from URL only on the first run
+    if "first_run" not in st.session_state:
+        own, loan, duration = get_from_URL()
+        st.session_state.first_run = True
+    else:
+        own, loan, duration = 2.0, 10.0, 5
+
     col1, col2 = st.columns(2)
     own = col1.number_input(
         "Вы вложите собственных средств, млн. руб.",
-        value=2.0,
+        value=own,
         min_value=1.0,
         max_value=100.0,
         step=0.1,
@@ -77,7 +84,7 @@ def basic_inputs():
 
     loan = col2.number_input(
         "Вы возьмёте ипотечный кредит, млн. руб.",
-        value=10.0,
+        value=loan,
         min_value=0.0,
         max_value=100.0,
         step=0.1,
@@ -107,9 +114,44 @@ def basic_inputs():
         )
         st.stop()
 
-    duration = st.slider("Срок проекта, мес.", value=5, min_value=3, max_value=8)
+    duration = st.slider(
+        "Срок проекта, мес.", value=duration, min_value=3, max_value=12
+    )
+
+    st.experimental_set_query_params(
+        own=round(own, 1), loan=round(loan, 1), duration=duration
+    )
 
     return own, loan, purchase_price, duration
+
+
+def get_from_URL():
+    """Returns own, loan, duration from the URL or defaults
+    if the values in the URL are absent or incorrect or out of bounds"""
+
+    try:
+        own, loan, duration = get_from_URL_params()
+
+        assert 1.0 <= own <= 100.0
+        assert 0.0 <= loan <= 100.0
+        assert 3 <= duration <= 12
+
+    except (ValueError, AssertionError):
+        if st.experimental_get_query_params():
+            st.error("Некорректные значения в URL, использую значения по умолчанию")
+        own, loan, duration = 2.0, 10.0, 5
+
+    return own, loan, duration
+
+
+def get_from_URL_params():
+    params = st.experimental_get_query_params()
+
+    own = float(params.get("own", [2.0])[0])
+    loan = float(params.get("loan", [10.0])[0])
+    duration = int(params.get("duration", [5])[0])
+
+    return own, loan, duration
 
 
 def fixed_income(own, loan, purchase_price, duration):
