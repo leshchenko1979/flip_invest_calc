@@ -154,7 +154,7 @@ def get_from_URL_params():
     own = float(params.get("own", [2.0])[0])
     loan = float(params.get("loan", [10.0])[0])
     duration = int(params.get("duration", [5])[0])
-    sale_price = float(params.get("sale_price", [15])[0])
+    sale_price = int(params.get("sale_price", [15])[0])
 
     return own, loan, duration, sale_price
 
