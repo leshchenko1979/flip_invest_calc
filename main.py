@@ -7,7 +7,7 @@ MIN_DOWNPAYMENT = 0.1
 
 REPAIRS_SHARE = 0.2
 
-LOAN_RATE = 0.17
+LOAN_RATE = 0.19
 TARGET_RATE = 0.2
 
 MAX_RATES = {1_000_000_000: 0.4}
@@ -114,9 +114,9 @@ def basic_inputs():
         help="Собственные средства + полученный ипотечный кредит",
     )
 
-    if downpayment < MIN_DOWNPAYMENT:
+    if round(downpayment, 3) < MIN_DOWNPAYMENT:
         st.error(
-            "Доля первоначального взноса дожна быть больше "
+            "Доля первоначального взноса дожна быть не меньше "
             f"{100 * MIN_DOWNPAYMENT:.0f}% (сейчас {100 * downpayment:.1f}%)."
         )
         st.stop()
