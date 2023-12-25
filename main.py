@@ -180,7 +180,7 @@ def calc_fixed_income(purchase_price, loan, own, duration):
     # Расчёт own_income_rate через WolframAlfa:
     # https://www.wolframalpha.com/input?i=%28x+*+a+%2B+r+*+b%29+%2F+%28a+%2B+b%29+%3D+t+what+is+x%3F
 
-    index = bisect.bisect(THRESHOLDS, int(purchase_price))
+    index = bisect.bisect(THRESHOLDS, duration)
     max_rate = RATES[index]
 
     own_income_rate = min(
