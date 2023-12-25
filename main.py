@@ -44,7 +44,7 @@ def main():
     with fixed:
         fixed_income(own, loan, purchase_price, duration)
 
-    if purchase_price < MIN_PRICE_FOR_PROFIT_SHARE:
+    if loan > 0:
         ps.warning("Раздел прибыли недоступен для инвесторов с ипотекой")
     else:
         with ps:
