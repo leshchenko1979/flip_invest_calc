@@ -41,22 +41,11 @@ def main():
 
     fixed, ps = st.tabs(["Фиксированная доходность", "Разделение прибыли"])
 
-    if purchase_price > MAX_PRICE_FOR_FIXED_INCOME:
-        fixed.warning(
-            "Фиксированная доходность недоступна для проектов, "
-            "где стоимость покупки квартиры "
-            f"более {MAX_PRICE_FOR_FIXED_INCOME} млн. руб."
-        )
-    else:
-        with fixed:
-            fixed_income(own, loan, purchase_price, duration)
+    with fixed:
+        fixed_income(own, loan, purchase_price, duration)
 
     if purchase_price < MIN_PRICE_FOR_PROFIT_SHARE:
-        ps.warning(
-            "Раздел прибыли недоступен для проектов, "
-            "где стоимость покупки квартиры "
-            f"менее {MIN_PRICE_FOR_PROFIT_SHARE} млн. руб."
-        )
+        ps.warning("Раздел прибыли недоступен для инвесторов с ипотекой")
     else:
         with ps:
             sale_price = profit_share(own, loan, purchase_price, duration, sale_price)
