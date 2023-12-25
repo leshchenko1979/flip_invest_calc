@@ -10,7 +10,7 @@ REPAIRS_SHARE = 0.2
 LOAN_RATE = 0.19
 TARGET_RATE = 0.22
 
-MAX_RATES = {6: 0.4, 7: 0.38, 8: 0.36, 9: 0.34, 10: 0.32, 11: 0.3}
+MAX_RATES = {7: 0.4, 8: 0.38, 9: 0.36, 10: 0.34, 11: 0.32, 100: 0.3}
 THRESHOLDS = list(MAX_RATES.keys())
 RATES = list(MAX_RATES.values())
 
